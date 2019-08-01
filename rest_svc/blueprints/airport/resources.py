@@ -15,12 +15,12 @@ class GetNearestAirport(Resource):
     air_apikey = 'd9590fce09mshc40938b919d0b1dp177c42jsndc25170e133b'
 
     # @jwt_required
-    def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('address', location='args', default=None)
-        args = parser.parse_args()
+    def get(self, address):
+        # parser = reqparse.RequestParser()
+        # parser.add_argument('address', location='args', default=None)
+        # args = parser.parse_args()
 
-        rq_geo = requests.get(self.geo_host + '/json?', params={'address': args['address'], 'key': self.geo_apikey})
+        rq_geo = requests.get(self.geo_host + '/json?', params={'address': address, 'key': self.geo_apikey})
         geo = rq_geo.json()
         lat = geo['results'][0]['geometry']['location']['lat']
         lon = geo['results'][0]['geometry']['location']['lng']
@@ -37,6 +37,6 @@ class GetNearestAirport(Resource):
             'radius': radius
         }
 
-api.add_resource(GetNearestAirport, '')
+api.add_resource(GetNearestAirport, '/<address>')
 
 

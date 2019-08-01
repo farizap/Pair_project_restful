@@ -10,6 +10,7 @@ from flask_jwt_extended import jwt_required, get_jwt_claims
 
 from blueprints.hqpredict.resources import UserGetHQPredict
 from blueprints.trip.resources import Trips
+from blueprints.airport.resources import GetNearestAirport
 
 
 # 'client' penamaan (boleh diganti)
@@ -21,7 +22,7 @@ class EventUserResource(Resource):
     token = "e6KsG50OLWLBog4ZyTXTpu1OMKCUgS"
     
     @jwt_required
-    @non_internal_required
+    # @non_internal_required
     def post(self):
 
         raw = UserGetHQPredict().get()
@@ -35,26 +36,22 @@ class EventUserResource(Resource):
         start_time = raw[0]['results'][0]['start']
         end_time = raw[0]['results'][0]['end']
 
-        event = Events.query.filter_by(event_id='event_id')
+        event = Events.query.filter_by(event_id=event_id).first()
         claim = get_jwt_claims()
-        # if event is None:
-        event = Events(title, event_id, address, venue, start_time, end_time)
-        db.session.add(event)
+        if event is None:
+            event = Events(title, event_id, address, venue, start_time, end_time)
+            db.session.add(event)
+            db.session.commit()
+        event = marshal(event, Events.response_field)
+
+        air = GetNearestAirport().get(address)
+
+
+        trip = Trips(claim['id'], event['id'], air['airport_name'])
+        db.session.add(trip)
         db.session.commit()
 
-            # event = marshal(event, Events.response_field)
-
-            # trip = Trips(claim['id'], marshal(event, Events.response_field)['id'])
-            # db.session.add(trip)
-            # db.session.commit()
-            # return event
-        #     db.session.expire_all()
-
-        # trip = Trips(claim['id'], event['id'])
-        # db.session.add(trip)
-        # db.session.commit()
-
-        return marshal(event, Events.response_field), 200, {'Content-Type':'application/json'}
+        return event, 200, {'Content-Type':'application/json'}
     
     # @jwt_required
     # @internal_required

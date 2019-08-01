@@ -24,7 +24,7 @@ class InternalTripResource(Resource):
         if qry is not None:
             result = marshal(qry, Trips.response_field)
             result['event'] = marshal(Events.query.get(result["event_id"]), Events.response_field)
-            result['client'] = marshal(Books.query.get(result["client_id"]), Books.response_field)
+            result['client'] = marshal(Clients.query.get(result["client_id"]), Clients.response_field)
             return result, 200
         return {'status':'NOT_FOUND'}, 404
 

@@ -23,12 +23,10 @@ class EventUserResource(Resource):
     
     @jwt_required
     # @non_internal_required
-    def post(self):
+    def get(self):
 
         raw = UserGetHQPredict().get()
-
         # return raw
-
         title = raw[0]['results'][0]['title']
         event_id = raw[0]['results'][0]['id']
         address = raw[0]['results'][0]['entities'][0]["formatted_address"]
@@ -85,38 +83,9 @@ class EventUserResource(Resource):
 
         return {'status':'DELETED'}, 200
 
-# class ClientList(Resource):
-
-#     def __init__(self):
-#         pass
-
-#     # @jwt_required
-#     # @internal_required
-#     def get(self):
-#         parser = reqparse.RequestParser()
-#         parser.add_argument('p', type=int, location='args', default=1)
-#         parser.add_argument('rp',type=int, location='args', default=25)
-#         parser.add_argument('filterbyclientid',location='args', help='invalid client_id',type=int)
-#         parser.add_argument('filterbystatus',location='args', type=inputs.boolean, help='invalid status', choices=(True,False))
-
-#         args =parser.parse_args()
-
-#         offset = (args['p'] * args['rp']) - args['rp']
-
-#         qry = Clients.query
-
-#         if args['filterbystatus'] is not None:
-#             qry = qry.filter_by(status=args['filterbystatus'])
-
-#         if args['filterbyclientid'] is not None:
-#             qry = qry.filter_by(id=args['filterbyclientid'])
-
-#         result = []
-#         for row in qry.limit(args['rp']).offset(offset).all():
-#             result.append(marshal(row,Clients.response_field))
-        
-#         return result, 200, {'Content-Type':'application/json'}
 
 
-api.add_resource(EventUserResource, '/user/event',)
+
+api.add_resource(EventUserResource, '/user/event')
+
 # api.add_resource(ClientList,'','/list')

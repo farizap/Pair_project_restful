@@ -13,15 +13,18 @@ from flask_jwt_extended import jwt_required
 bp_client = Blueprint('client', __name__)
 api = Api(bp_client)
 
-class ClientResource(Resource):
+class InternalClientResource(Resource):
 
-    # @jwt_required
+    @jwt_required
+    @internal_required
     def get(self, id):
         qry = Clients.query.get(id)
         if qry is not None:
             return marshal(qry, Clients.response_field), 200
         return {'status':'NOT_FOUND'}, 404
 
+    @jwt_required
+    @internal_required
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('client_key', location='json', required=True)
@@ -38,8 +41,8 @@ class ClientResource(Resource):
 
         return marshal(client, Clients.response_field), 200, {'Content-Type':'application/json'}
     
-    # @jwt_required
-    # @internal_required
+    @jwt_required
+    @internal_required
     def put(self,id):
         parser = reqparse.RequestParser()
         parser.add_argument('client_key', location='json', required=True)
@@ -58,8 +61,8 @@ class ClientResource(Resource):
         db.session.commit()
         return marshal(qry, Clients.response_field), 200, {'Content-Type':'application/json'}
 
-    # @jwt_required
-    # @internal_required
+    @jwt_required
+    @internal_required
     def delete(self,id):
         qry = Clients.query.get(id)
         if qry is None:
@@ -70,13 +73,13 @@ class ClientResource(Resource):
 
         return {'status':'DELETED'}, 200
 
-class ClientList(Resource):
+class InternalClientResourceList(Resource):
 
     def __init__(self):
         pass
 
-    # @jwt_required
-    # @internal_required
+    @jwt_required
+    @internal_required
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('p', type=int, location='args', default=1)
@@ -103,5 +106,6 @@ class ClientList(Resource):
         return result, 200, {'Content-Type':'application/json'}
 
 
-api.add_resource(ClientResource, '', '/<id>')
-api.add_resource(ClientList,'','/list')
+
+api.add_resource(InternalClientResource, '/internal/<id>')
+api.add_resource(InternalClientResourceList,'/internal')

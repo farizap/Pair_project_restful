@@ -90,7 +90,7 @@ def after_request(response):
 from blueprints.client.resources import bp_client
 # from blueprints.user.resources import bp_user
 # from blueprints.book.resources import bp_books
-# from blueprints.auth import bp_auth
+from blueprints.auth import bp_auth
 # from blueprints.weather.resources import bp_weather
 # from blueprints.rent.resources import bp_rent
 from blueprints.hqpredict.resources import bp_hqpredict
@@ -101,10 +101,10 @@ from blueprints.trip.resources import bp_trips
 app.register_blueprint(bp_client, url_prefix='/client' )
 # app.register_blueprint(bp_books, url_prefix='/books' )
 # app.register_blueprint(bp_user, url_prefix='/user' )
-# app.register_blueprint(bp_auth, url_prefix='/token')
+app.register_blueprint(bp_auth, url_prefix='/token')
 # app.register_blueprint(bp_weather, url_prefix='/weather')
 # app.register_blueprint(bp_rent, url_prefix='/rent')
-app.register_blueprint(bp_hqpredict, url_prefix='/predict')
+app.register_blueprint(bp_hqpredict, url_prefix='')
 app.register_blueprint(bp_trips, url_prefix='/trip')
 
 db.create_all()

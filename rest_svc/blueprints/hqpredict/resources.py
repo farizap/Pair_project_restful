@@ -50,4 +50,4 @@ class PublicGetHQPredict(Resource):
         return response, 200, {'Content-Type':'application/json'}
 
 
-api.add_resource(PublicGetHQPredict,'','')
+api.add_resource(PublicGetHQPredict,'/public/event')

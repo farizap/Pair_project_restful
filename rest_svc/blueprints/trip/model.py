@@ -7,8 +7,7 @@ class Trips(db.Model):
     client_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey('events.id'), nullable=False)
 
-
-    # user_id, book_id, return_date
+    # client_id, event_id
     response_field = {
         'id': fields.Integer,
         'client_id': fields.Integer,

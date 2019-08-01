@@ -58,7 +58,8 @@ def non_internal_required(fn):
 ####Database####
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://alta123:h@localhost:3306/pair_project'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://alta123:h@localhost:3306/pair_project'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://fikriamri:threecheers@localhost:3306/pair_project'
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -90,21 +91,25 @@ def after_request(response):
 from blueprints.client.resources import bp_client
 # from blueprints.user.resources import bp_user
 # from blueprints.book.resources import bp_books
-# from blueprints.auth import bp_auth
+from blueprints.auth import bp_auth
 # from blueprints.weather.resources import bp_weather
 # from blueprints.rent.resources import bp_rent
 from blueprints.hqpredict.resources import bp_hqpredict
 from blueprints.trip.resources import bp_trips
+from blueprints.airport.resources import bp_airport
+from blueprints.event.resources import bp_event
 
 
 # app.register_blueprint(bp_person, url_prefix='/person')
 app.register_blueprint(bp_client, url_prefix='/client' )
 # app.register_blueprint(bp_books, url_prefix='/books' )
 # app.register_blueprint(bp_user, url_prefix='/user' )
-# app.register_blueprint(bp_auth, url_prefix='/token')
+app.register_blueprint(bp_auth, url_prefix='/token')
 # app.register_blueprint(bp_weather, url_prefix='/weather')
 # app.register_blueprint(bp_rent, url_prefix='/rent')
 app.register_blueprint(bp_hqpredict, url_prefix='/predict')
 app.register_blueprint(bp_trips, url_prefix='/trip')
+app.register_blueprint(bp_airport, url_prefix='/airport')
+app.register_blueprint(bp_event, url_prefix='')
 
 db.create_all()

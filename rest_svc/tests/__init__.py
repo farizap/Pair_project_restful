@@ -22,8 +22,8 @@ def create_token():
     if token is None:
         ##prepare request input
         data = {
-            'client_key':'CLIENT02',
-            'client_secret':'SECRET02'
+            'client_key':'internal',
+            'client_secret':'internalis'
         }
         # do request
 
@@ -54,8 +54,8 @@ def create_token_noninternal():
     if token is None:
         ##prepare request input
         data = {
-            'client_key':'CLIENT01',
-            'client_secret':'SECRET01'
+            'client_key':'noninternal',
+            'client_secret':'noninternal'
         }
         # do request
 

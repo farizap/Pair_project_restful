@@ -40,10 +40,10 @@ class TestUserCrud():
         token = create_token()
        
         data = {
-        "name": "Rudy Sujarswos",
-        "age": 56,
-        "sex": "male",
-        "client_id": 4
+        	"client_id":3,
+            "name":"sukamto",
+            "age":56,
+            "sex":"female"
         }
 
         res = client.post('/user', headers={'Authorization':'Bearer ' + token}, data=json.dumps(data),
@@ -61,10 +61,10 @@ class TestUserCrud():
         token = create_token()
        
         data = {
-        "name": "Rudy Sujarswoadass",
-        "age": 56,
-        "sex": "male",
-        "client_id": 4
+            "name": "Rudy Sujarswoadass",
+            "age": 56,
+            "sex": "male",
+            "client_id": 3
         }
 
         res = client.put(f'/user/{TestUserCrud.user_id}', headers={'Authorization':'Bearer ' + token}, data=json.dumps(data),

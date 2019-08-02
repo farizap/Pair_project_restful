@@ -10,6 +10,7 @@ from flask_jwt_extended import jwt_required, get_jwt_claims
 
 from blueprints.hqpredict.resources import UserGetHQPredict
 from blueprints.trip.resources import Trips
+from blueprints.airport.resources import GetNearestAirport
 
 
 # 'client' penamaan (boleh diganti)
@@ -21,13 +22,11 @@ class EventUserResource(Resource):
     token = "e6KsG50OLWLBog4ZyTXTpu1OMKCUgS"
     
     @jwt_required
-    @non_internal_required
-    def post(self):
+    # @non_internal_required
+    def get(self):
 
         raw = UserGetHQPredict().get()
-
         # return raw
-
         title = raw[0]['results'][0]['title']
         event_id = raw[0]['results'][0]['id']
         address = raw[0]['results'][0]['entities'][0]["formatted_address"]
@@ -35,24 +34,20 @@ class EventUserResource(Resource):
         start_time = raw[0]['results'][0]['start']
         end_time = raw[0]['results'][0]['end']
 
-        event = Events.query.filter_by(event_id='event_id')
+        event = Events.query.filter_by(event_id=event_id).first()
         claim = get_jwt_claims()
-        # if event is None:
-        event = Events(title, event_id, address, venue, start_time, end_time)
-        db.session.add(event)
+        if event is None:
+            event = Events(title, event_id, address, venue, start_time, end_time)
+            db.session.add(event)
+            db.session.commit()
+        event = marshal(event, Events.response_field)
+
+        air = GetNearestAirport().get(address)
+
+
+        trip = Trips(claim['id'], event['id'], air['airport_name'])
+        db.session.add(trip)
         db.session.commit()
-
-            # event = marshal(event, Events.response_field)
-
-            # trip = Trips(claim['id'], marshal(event, Events.response_field)['id'])
-            # db.session.add(trip)
-            # db.session.commit()
-            # return event
-        #     db.session.expire_all()
-
-        # trip = Trips(claim['id'], event['id'])
-        # db.session.add(trip)
-        # db.session.commit()
 
         app.logger.debug('DEBUG : %s ', event )
 
@@ -90,38 +85,9 @@ class EventUserResource(Resource):
 
         return {'status':'DELETED'}, 200
 
-# class ClientList(Resource):
-
-#     def __init__(self):
-#         pass
-
-#     # @jwt_required
-#     # @internal_required
-#     def get(self):
-#         parser = reqparse.RequestParser()
-#         parser.add_argument('p', type=int, location='args', default=1)
-#         parser.add_argument('rp',type=int, location='args', default=25)
-#         parser.add_argument('filterbyclientid',location='args', help='invalid client_id',type=int)
-#         parser.add_argument('filterbystatus',location='args', type=inputs.boolean, help='invalid status', choices=(True,False))
-
-#         args =parser.parse_args()
-
-#         offset = (args['p'] * args['rp']) - args['rp']
-
-#         qry = Clients.query
-
-#         if args['filterbystatus'] is not None:
-#             qry = qry.filter_by(status=args['filterbystatus'])
-
-#         if args['filterbyclientid'] is not None:
-#             qry = qry.filter_by(id=args['filterbyclientid'])
-
-#         result = []
-#         for row in qry.limit(args['rp']).offset(offset).all():
-#             result.append(marshal(row,Clients.response_field))
-        
-#         return result, 200, {'Content-Type':'application/json'}
 
 
-api.add_resource(EventUserResource, '/user/event',)
+
+api.add_resource(EventUserResource, '/user/event')
+
 # api.add_resource(ClientList,'','/list')

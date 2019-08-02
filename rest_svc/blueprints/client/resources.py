@@ -106,6 +106,5 @@ class InternalClientResourceList(Resource):
         return result, 200, {'Content-Type':'application/json'}
 
 
-
-api.add_resource(InternalClientResource, '', '/internal/<id>')
-api.add_resource(InternalClientResourceList,'/internal')
+api.add_resource(InternalClientResource,'/internal/<id>','/internal')
+api.add_resource(InternalClientResourceList,'/internal/list')

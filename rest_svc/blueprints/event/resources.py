@@ -54,6 +54,8 @@ class EventUserResource(Resource):
         # db.session.add(trip)
         # db.session.commit()
 
+        app.logger.debug('DEBUG : %s ', event )
+
         return marshal(event, Events.response_field), 200, {'Content-Type':'application/json'}
     
     # @jwt_required

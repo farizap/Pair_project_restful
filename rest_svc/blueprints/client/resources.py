@@ -107,5 +107,5 @@ class InternalClientResourceList(Resource):
 
 
 
-api.add_resource(InternalClientResource, '/internal/<id>')
+api.add_resource(InternalClientResource, '', '/internal/<id>')
 api.add_resource(InternalClientResourceList,'/internal')

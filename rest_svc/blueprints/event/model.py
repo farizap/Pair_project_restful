@@ -16,7 +16,7 @@ class Events(db.Model):
     response_field = {
         'id': fields.Integer,
         'title': fields.String,
-        'event_id': fields.Integer,
+        'event_id': fields.String,
         'address': fields.String,
         'venue': fields.String,
         'start_time': fields.String,

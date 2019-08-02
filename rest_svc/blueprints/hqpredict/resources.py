@@ -20,7 +20,7 @@ class PublicGetHQPredict(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('startdate', location='args',default="2019-08-01")
         parser.add_argument('enddate', location='args',default='2019-09-15')
-        parser.add_argument('category', location='args',default=None)
+        parser.add_argument('category', location='args', default='concerts,festivals')
         parser.add_argument('search', location='args', default=None)
         args = parser.parse_args()
 

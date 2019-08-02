@@ -118,5 +118,5 @@ class UserList(Resource):
 
         return result, 200, {'Content-Type':'application/json'}
 
-api.add_resource(UserResource, '', '/<id>')
-api.add_resource(UserList,'','')
+api.add_resource(UserResource,'','/<id>')
+api.add_resource(UserList,'/list')

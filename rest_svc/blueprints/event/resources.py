@@ -51,7 +51,7 @@ class EventUserResource(Resource):
 
         app.logger.debug('DEBUG : %s ', event )
 
-        return marshal(event, Events.response_field), 200, {'Content-Type':'application/json'}
+        return event, 200, {'Content-Type':'application/json'}
     
     # @jwt_required
     # @internal_required

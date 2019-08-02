@@ -19,8 +19,8 @@ class PublicGetHQPredict(Resource):
 
         parser = reqparse.RequestParser()
         parser.add_argument('startdate', location='args',default="2019-08-01")
-        parser.add_argument('enddate', location='args',default='2019-09-15')
-        parser.add_argument('category', location='args', default='concerts,festivals')
+        parser.add_argument('enddate', location='args',default='2019-08-17')
+        parser.add_argument('category', location='args', default='concerts')
         parser.add_argument('search', location='args', default=None)
         args = parser.parse_args()
 
@@ -33,15 +33,15 @@ class PublicGetHQPredict(Resource):
             "country" : "ID",
             "active.gte" : args['startdate'],
             "active.lte" : args['enddate'],
-            "active.tz" : "Asia/Jakarta",
-            "sort" : "rank"  
+            "active.tz" : "Asia/Jakarta"
+            # "sort" : "rank"  
         }
 
         if args['category'] is not None:
             param['category'] = args['category']
 
         if args['search'] is not None:
-            param['search'] = args['search']
+            param['q'] = args['search']
 
         res = requests.get(self.host, params=param, headers={'Authorization': 'Bearer ' + self.token})
         
@@ -61,7 +61,7 @@ class UserGetHQPredict(Resource):
 
         parser = reqparse.RequestParser()
         parser.add_argument('startdate', location='args',default="2019-08-01")
-        parser.add_argument('enddate', location='args',default='2019-09-15')
+        parser.add_argument('enddate', location='args',default='2019-08-17')
         parser.add_argument('category', location='args',default='concerts')
         parser.add_argument('search', location='args', default=None, required=True)
         args = parser.parse_args()
@@ -75,15 +75,15 @@ class UserGetHQPredict(Resource):
             "country" : "ID",
             "active.gte" : args['startdate'],
             "active.lte" : args['enddate'],
-            "active.tz" : "Asia/Jakarta",
-            "sort" : "rank"  
+            "active.tz" : "Asia/Jakarta"
+            # "sort" : "rank"  
         }
 
         if args['category'] is not None:
             param['category'] = args['category']
 
         if args['search'] is not None:
-            param['search'] = args['search']
+            param['q'] = args['search']
 
         res = requests.get(self.host, params=param, headers={'Authorization': 'Bearer ' + self.token})
         

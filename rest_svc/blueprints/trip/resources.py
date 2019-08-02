@@ -5,6 +5,7 @@ from .model import Trips
 from blueprints.event.model import Events
 from blueprints.client.model import Clients
 from blueprints.user.model import Users
+from blueprints.weather import PublicGetWeather
 from blueprints import db, app, internal_required
 from sqlalchemy import desc
 
@@ -149,6 +150,25 @@ class PublicTripList(Resource):
             travel_id = marshal(row,Trips.response_field)['event_id']
             result.append(marshal(Events.query.get(travel_id), Events.response_field))
             # result.append(marshal(result, Trips.response_field))
+
+            # weather_raw = PublicGetWeather().get(result[-1]['address'])
+            weather_raw = PublicGetWeather().get()[0]
+        
+            weather_result = {}
+            for weather_perday in weather_raw:
+                if weather_perday["datetime"] == result[-1]['start_time']:
+                    weather_result['max_temperature'] = weather_perday['max_temp']
+                    weather_result['temperature'] = weather_perday['temp']
+                    weather_result['min_temperature'] = weather_perday['min_temp']
+                    weather_result['precipitation'] = str(weather_perday['precip']) + ' %'
+                    weather_result['description'] = weather_perday['weather']['description']
+                    break
+
+            if weather_result == {}:
+                weather_result = "No weather forecast"
+
+            result[-1]['weather'] = weather_result
+
         
         user_qry = Users.query.filter_by(client_id = claims['id']).first()
         user_dict = marshal(user_qry, Users.response_field)

@@ -11,7 +11,7 @@ from flask_jwt_extended import jwt_required, get_jwt_claims
 from blueprints.hqpredict.resources import UserGetHQPredict
 from blueprints.trip.resources import Trips
 from blueprints.airport.resources import GetNearestAirport
-
+from blueprints.weather import PublicGetWeather
 
 # 'client' penamaan (boleh diganti)
 bp_event = Blueprint('event', __name__)
@@ -31,8 +31,8 @@ class EventUserResource(Resource):
         event_id = raw[0]['results'][0]['id']
         address = raw[0]['results'][0]['entities'][0]["formatted_address"]
         venue = raw[0]['results'][0]['entities'][0]["name"]
-        start_time = raw[0]['results'][0]['start']
-        end_time = raw[0]['results'][0]['end']
+        start_time = raw[0]['results'][0]['start'][:10]
+        end_time = raw[0]['results'][0]['end'][:10]
 
         event = Events.query.filter_by(event_id=event_id).first()
         claim = get_jwt_claims()

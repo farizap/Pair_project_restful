@@ -58,8 +58,8 @@ def non_internal_required(fn):
 ####Database####
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://alta123:h@localhost:3306/pair_project'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://fikriamri:threecheers@localhost:3306/pair_project'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://alta123:h@localhost:3306/pair_project'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://fikriamri:threecheers@localhost:3306/pair_project'
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)

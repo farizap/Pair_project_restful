@@ -12,6 +12,7 @@ class Events(db.Model):
     start_time = db.Column(db.String(30), nullable=True)
     end_time = db.Column(db.String(30), nullable=True)
 
+
     # user_id, book_id, return_date
     response_field = {
         'id': fields.Integer,

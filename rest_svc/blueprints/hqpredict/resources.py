@@ -34,14 +34,14 @@ class PublicGetHQPredict(Resource):
             "active.gte" : args['startdate'],
             "active.lte" : args['enddate'],
             "active.tz" : "Asia/Jakarta",
-            "sort" : "rank"  
+            "sort" : "relevance"  
         }
 
         if args['category'] is not None:
             param['category'] = args['category']
 
         if args['search'] is not None:
-            param['search'] = args['search']
+            param['q'] = args['search']
 
         res = requests.get(self.host, params=param, headers={'Authorization': 'Bearer ' + self.token})
         
@@ -76,14 +76,14 @@ class UserGetHQPredict(Resource):
             "active.gte" : args['startdate'],
             "active.lte" : args['enddate'],
             "active.tz" : "Asia/Jakarta",
-            "sort" : "rank"  
+            "sort" : "relevance"  
         }
 
         if args['category'] is not None:
             param['category'] = args['category']
 
         if args['search'] is not None:
-            param['search'] = args['search']
+            param['q'] = args['search']
 
         res = requests.get(self.host, params=param, headers={'Authorization': 'Bearer ' + self.token})
         

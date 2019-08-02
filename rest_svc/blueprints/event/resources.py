@@ -2,6 +2,8 @@ from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
 
 from .model import Events
+from blueprints.trip.model import Trips
+from blueprints.trip.resources import InternalTripResource
 from blueprints import db, app
 from sqlalchemy import desc
 
@@ -9,7 +11,6 @@ from blueprints import internal_required, non_internal_required
 from flask_jwt_extended import jwt_required, get_jwt_claims
 
 from blueprints.hqpredict.resources import UserGetHQPredict
-from blueprints.trip.resources import Trips
 from blueprints.airport.resources import GetNearestAirport
 
 
@@ -22,7 +23,7 @@ class EventUserResource(Resource):
     token = "e6KsG50OLWLBog4ZyTXTpu1OMKCUgS"
     
     @jwt_required
-    # @non_internal_required
+    @non_internal_required
     def get(self):
 
         raw = UserGetHQPredict().get()
@@ -53,30 +54,46 @@ class EventUserResource(Resource):
 
         return event, 200, {'Content-Type':'application/json'}
     
-    # @jwt_required
-    # @internal_required
+    @jwt_required
+    @internal_required
     def put(self,id):
         parser = reqparse.RequestParser()
-        parser.add_argument('client_key', location='json', required=True)
-        parser.add_argument('client_secret', location='json', required=True)
-        parser.add_argument('status',type=inputs.boolean, location='json')
+        parser.add_argument('title', location='json')
+        parser.add_argument('event_id', location='json')
+        parser.add_argument('address', location='json')
+        parser.add_argument('venue', location='json')
+        parser.add_argument('start_time', location='json')
+        parser.add_argument('end_time', location='json')
         args = parser.parse_args()
 
-        qry = Clients.query.get(id)
+        qry = Events.query.get(id)
+        
+        claim = get_jwt_claims()
 
         if qry is None:
             return {'status':'NOT_FOUND'}, 404
 
-        qry.client_key = args['client_key']
-        qry.client_secret = args['client_secret']
-        qry.status = args['status']
+        qry.title = args['title']
+        qry.event_id = args['event_id']
+        qry.address = args['address']
+        qry.venue = args['venue']
+        qry.start_time = args['start_time']
+        qry.end_time = args['end_time']
         db.session.commit()
-        return marshal(qry, Clients.response_field), 200, {'Content-Type':'application/json'}
+        event = marshal(qry, Events.response_field)
 
-    # @jwt_required
-    # @internal_required
+  
+        return event, 200, {'Content-Type':'application/json'}
+
+    @jwt_required
+    @internal_required
     def delete(self,id):
-        qry = Clients.query.get(id)
+        trips = Trips.query.filter_by(event_id = id).all()
+        for item in trips:
+            id_trip = marshal(item, Trips.response_field)['id']
+            InternalTripResource().delete(id_trip)
+
+        qry = Events.query.get(id)
         if qry is None:
             return {'status':'NOT_FOUND'}, 404
 
@@ -88,6 +105,6 @@ class EventUserResource(Resource):
 
 
 
-api.add_resource(EventUserResource, '/user/event')
+api.add_resource(EventUserResource, '/user/event', '/user/event/<id>')
 
 # api.add_resource(ClientList,'','/list')

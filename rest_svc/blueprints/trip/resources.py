@@ -5,6 +5,7 @@ from .model import Trips
 from blueprints.event.model import Events
 from blueprints.client.model import Clients
 from blueprints.user.model import Users
+from blueprints.weather import PublicGetWeather
 from blueprints import db, app, internal_required
 from sqlalchemy import desc
 
@@ -13,7 +14,7 @@ bp_trips = Blueprint('trips', __name__)
 api = Api(bp_trips)
 
 from blueprints import non_internal_required
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_claims
 
 class InternalTripResource(Resource):
 
@@ -24,7 +25,7 @@ class InternalTripResource(Resource):
         if qry is not None:
             result = marshal(qry, Trips.response_field)
             result['event'] = marshal(Events.query.get(result["event_id"]), Events.response_field)
-            result['client'] = marshal(Books.query.get(result["client_id"]), Books.response_field)
+            result['client'] = marshal(Clients.query.get(result["client_id"]), Clients.response_field)
             return result, 200
         return {'status':'NOT_FOUND'}, 404
 
@@ -35,16 +36,17 @@ class InternalTripResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('client_id', location='json',type=int, required=True)
         parser.add_argument('event_id', location='json',type=int, required=True)
+        parser.add_argument('airport', location='json', required=True)
         args = parser.parse_args()
 
-        Rent = Trips(args['client_id'],args['event_id'],date)
+        trip = Trips(args['client_id'],args['event_id'],args['airport'])
 
-        db.session.add(Rent)
+        db.session.add(trip)
         db.session.commit()
 
-        app.logger.debug('DEBUG : %s ', Rent )
+        app.logger.debug('DEBUG : %s ', trip )
 
-        return marshal(Rent, Trips.response_field), 200, {'Content-Type':'application/json'}
+        return marshal(trip, Trips.response_field), 200, {'Content-Type':'application/json'}
     
     @jwt_required
     @internal_required
@@ -52,6 +54,7 @@ class InternalTripResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('client_id', location='json',type=int, required=True)
         parser.add_argument('event_id', location='json',type=int, required=True)
+        parser.add_argument('airport', location='json', required=True)
         args = parser.parse_args()
 
         qry = Trips.query.get(id)
@@ -61,7 +64,7 @@ class InternalTripResource(Resource):
 
         qry.client_id = args['client_id']
         qry.event_id = args['event_id']
-        qry.status = args['status']
+        qry.airport = args['airport']
         db.session.commit()
         return marshal(qry, Trips.response_field), 200, {'Content-Type':'application/json'}
 
@@ -76,6 +79,36 @@ class InternalTripResource(Resource):
         db.session.commit()
 
         return {'status':'DELETED'}, 200
+
+
+class InternalTripResourceList(Resource):
+
+    def __init__(self):
+        pass
+
+    @jwt_required
+    @internal_required
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('p', type=int, location='args', default=1)
+        parser.add_argument('rp',type=int, location='args', default=25)
+        parser.add_argument('filterbyclientid',location='args', help='invalid client_id',type=int)
+
+        args =parser.parse_args()
+
+        offset = (args['p'] * args['rp']) - args['rp']
+
+        qry = Trips.query
+
+        if args['filterbyclientid'] is not None:
+            qry = qry.filter_by(id=args['filterbyclientid'])
+
+        result = []
+        for row in qry.limit(args['rp']).offset(offset).all():
+            result.append(marshal(row,Trips.response_field))
+        
+        return result, 200, {'Content-Type':'application/json'}
+
 
 class PublicTripList(Resource):
 
@@ -114,18 +147,42 @@ class PublicTripList(Resource):
         
         result = []
         for row in qry.limit(args['rp']).offset(offset).all():
-            result['user'] = marshal(Users.query.get(result["client_id"]), Users.response_field)
-            result['book'] = marshal(Events.query.get(result["event_id"]), Events.response_field)
-            result.append(marshal(result, Trips.response_field))
+            travel_id = marshal(row,Trips.response_field)['event_id']
+            result.append(marshal(Events.query.get(travel_id), Events.response_field))
+            # result.append(marshal(result, Trips.response_field))
+
+            # weather_raw = PublicGetWeather().get(result[-1]['address'])
+            weather_raw = PublicGetWeather().get()[0]
         
+            weather_result = {}
+            for weather_perday in weather_raw:
+                if weather_perday["datetime"] == result[-1]['start_time']:
+                    weather_result['max_temperature'] = weather_perday['max_temp']
+                    weather_result['temperature'] = weather_perday['temp']
+                    weather_result['min_temperature'] = weather_perday['min_temp']
+                    weather_result['precipitation'] = str(weather_perday['precip']) + ' %'
+                    weather_result['description'] = weather_perday['weather']['description']
+                    break
+
+            if weather_result == {}:
+                weather_result = "No weather forecast"
+
+            result[-1]['weather'] = weather_result
+
+        
+        user_qry = Users.query.filter_by(client_id = claims['id']).first()
+        user_dict = marshal(user_qry, Users.response_field)
+
         results = {}
         results['page'] = args['p']
         results['total_page'] = len(result) // args['rp'] +1
         results['per_page'] = args['rp']
-        results['client_id'] = claims['id']
+        results['client_data'] = user_dict
         results['data'] = result
         
         return results, 200, {'Content-Type':'application/json'}
 
-api.add_resource(InternalTripResource, '/internal/<id>')
-api.add_resource(PublicTripList,'/public')
+api.add_resource(InternalTripResource,'/internal', '/internal/<id>')
+api.add_resource(InternalTripResourceList,'/internal/list')
+
+api.add_resource(PublicTripList,'/client')

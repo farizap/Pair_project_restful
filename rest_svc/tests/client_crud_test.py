@@ -10,14 +10,14 @@ class TestClientCrud():
 ########### get list
     def test_get_client_list_valid(self, client):
         token = create_token()
-        res = client.get('/client/list', 
+        res = client.get('/client/internal/list', 
                         headers={'Authorization': 'Bearer ' + token})
 
         res_json = json.loads(res.data)
         assert res.status_code == 200
 
     def test_get_client_list_invalid(self, client):
-        res = client.get('/client/list', 
+        res = client.get('/client/internal/list', 
                         headers={'Authorization': 'Bearer asasd' })
 
         res_json = json.loads(res.data)
@@ -29,7 +29,7 @@ class TestClientCrud():
         data = {
             'client_key': 'CSADSDS'
         }
-        res = client.post('/client', headers={'Authorization':'Bearer ' + token}, data=json.dumps(data),
+        res = client.post('/client/internal', headers={'Authorization':'Bearer ' + token}, data=json.dumps(data),
                                     content_type='application/json'
         )
 
@@ -44,7 +44,7 @@ class TestClientCrud():
         'status': True
         }
 
-        res = client.post('/client', headers={'Authorization':'Bearer ' + token}, data=json.dumps(data),
+        res = client.post('/client/internal', headers={'Authorization':'Bearer ' + token}, data=json.dumps(data),
                                     content_type='application/json'
         )
 
@@ -64,7 +64,7 @@ class TestClientCrud():
         'status': True
         }
 
-        res = client.put(f'/client/{TestClientCrud.client_id}', headers={'Authorization':'Bearer ' + token}, data=json.dumps(data),
+        res = client.put(f'/client/internal/{TestClientCrud.client_id}', headers={'Authorization':'Bearer ' + token}, data=json.dumps(data),
                                     content_type='application/json'
         )
     
@@ -79,11 +79,11 @@ class TestClientCrud():
         'client_secret': 'SECRET05',
         }
 
-        res = client.put(f'/client/{TestClientCrud.client_id}', headers={'Authorization':'Bearer ' + token}, data=json.dumps(data),
+        res = client.put('/client/internal/0', headers={'Authorization':'Bearer ' + token}, data=json.dumps(data),
                                     content_type='application/json'
         )
     
-        assert res.status_code == 500
+        assert res.status_code == 404
 
 
 ############ get by id
@@ -91,7 +91,7 @@ class TestClientCrud():
         token = create_token()
        
 
-        res = client.get(f'/client/{TestClientCrud.client_id}', headers={'Authorization':'Bearer ' + token})
+        res = client.get(f'/client/internal/{TestClientCrud.client_id}', headers={'Authorization':'Bearer ' + token})
     
         assert res.status_code == 200
 
@@ -100,7 +100,7 @@ class TestClientCrud():
         token = create_token()
        
 
-        res = client.get(f'/client/0', headers={'Authorization':'Bearer ' + token})
+        res = client.get(f'/client/internal/0', headers={'Authorization':'Bearer ' + token})
         
     
         assert res.status_code == 404
@@ -111,7 +111,7 @@ class TestClientCrud():
     def test_delete_client_valid(self, client):
         token = create_token()
 
-        res = client.delete(f'/client/{TestClientCrud.client_id}', headers={'Authorization':'Bearer ' + token},
+        res = client.delete(f'/client/internal/{TestClientCrud.client_id}', headers={'Authorization':'Bearer ' + token},
                                     content_type='application/json'
         )
         assert res.status_code == 200
@@ -119,7 +119,7 @@ class TestClientCrud():
     def test_delete_client_invalid(self, client):
         token = create_token()
 
-        res = client.delete('/client/0', headers={'Authorization':'Bearer ' + token},
+        res = client.delete('/client/internal/0', headers={'Authorization':'Bearer ' + token},
                                     content_type='application/json'
         )
         assert res.status_code == 404
